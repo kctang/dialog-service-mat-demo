@@ -1,27 +1,40 @@
 # DialogServiceMatDemo
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 7.3.6.
+A minimal demo to use [dialog-service](https://github.com/kctang/dialog-service).
 
-## Development server
+1. Create new Angular project, install Angular Material and `dialog-service`.
+```
+ng new mat-demo --minimal=true
+cd mat-demo
+ng add @angular/material
+npm install dialog-service
+```
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+2. Import the module `MatDialogServiceModule` in `app.module.ts`.
 
-## Code scaffolding
+3. Extract template from `app.component.ts` to `app.component.html`.
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+4. Add button to `app.component.html` that when clicked, triggers `doDemo()` in component.
 
-## Build
+````typescript
+  doDemo () {
+    // simple demo
+    this.dialogService.withAlert('Hello!')
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
+    // simple, form demo
+    const fields: DialogFormField[] = [
+      { title: 'Name' },
+      { title: 'Gender', type: 'radio', options: [ 'Male', 'Female' ] },
+    ]
+    this.dialogService.withConfirm('Start now ok?').pipe(
+      filter(ok => ok),
+      switchMap(() => this.dialogService.withForm('Tell Me About Yourself', fields)),
+      filter(values => values),
+      tap(values => this.dialogService.withAlert('You?', {
+        content: `FORM DATA: \n${JSON.stringify(values, null, 2)}`
+      }))
+    ).subscribe()
+  }
+````
 
-## Running unit tests
-
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
-
-## Running end-to-end tests
-
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
-
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
+5. Start the app with `ng serve` and click on the 'Demo' button.

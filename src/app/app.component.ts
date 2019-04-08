@@ -1,31 +1,36 @@
-import { Component } from '@angular/core';
+import { Component } from '@angular/core'
+import { DialogFormField, DialogService } from 'dialog-service'
+import { filter } from 'rxjs/internal/operators/filter'
+import { switchMap } from 'rxjs/operators'
+import { tap } from 'rxjs/internal/operators/tap'
 
 @Component({
   selector: 'app-root',
-  template: `
-    <!--The content below is only a placeholder and can be replaced.-->
-    <div style="text-align:center">
-      <h1>
-        Welcome to {{title}}!
-      </h1>
-      <img width="300" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNTAgMjUwIj4KICAgIDxwYXRoIGZpbGw9IiNERDAwMzEiIGQ9Ik0xMjUgMzBMMzEuOSA2My4ybDE0LjIgMTIzLjFMMTI1IDIzMGw3OC45LTQzLjcgMTQuMi0xMjMuMXoiIC8+CiAgICA8cGF0aCBmaWxsPSIjQzMwMDJGIiBkPSJNMTI1IDMwdjIyLjItLjFWMjMwbDc4LjktNDMuNyAxNC4yLTEyMy4xTDEyNSAzMHoiIC8+CiAgICA8cGF0aCAgZmlsbD0iI0ZGRkZGRiIgZD0iTTEyNSA1Mi4xTDY2LjggMTgyLjZoMjEuN2wxMS43LTI5LjJoNDkuNGwxMS43IDI5LjJIMTgzTDEyNSA1Mi4xem0xNyA4My4zaC0zNGwxNy00MC45IDE3IDQwLjl6IiAvPgogIDwvc3ZnPg==">
-    </div>
-    <h2>Here are some links to help you start: </h2>
-    <ul>
-      <li>
-        <h2><a target="_blank" rel="noopener" href="https://angular.io/tutorial">Tour of Heroes</a></h2>
-      </li>
-      <li>
-        <h2><a target="_blank" rel="noopener" href="https://angular.io/cli">CLI Documentation</a></h2>
-      </li>
-      <li>
-        <h2><a target="_blank" rel="noopener" href="https://blog.angular.io/">Angular blog</a></h2>
-      </li>
-    </ul>
-    
-  `,
+  templateUrl: 'app.component.html',
   styles: []
 })
 export class AppComponent {
-  title = 'dialog-service-mat-demo';
+  title = 'dialog-service-mat-demo'
+
+  constructor (private dialogService: DialogService) {
+  }
+
+  doDemo () {
+    // simple demo
+    // this.dialogService.withAlert('Hello!')
+
+    // simple, form demo
+    const fields: DialogFormField[] = [
+      { title: 'Name' },
+      { title: 'Gender', type: 'radio', options: [ 'Male', 'Female' ] },
+    ]
+    this.dialogService.withConfirm('Start now ok?').pipe(
+      filter(ok => ok),
+      switchMap(() => this.dialogService.withForm('Tell Me About Yourself', fields)),
+      filter(values => values),
+      tap(values => this.dialogService.withAlert('You?', {
+        content: `FORM DATA: \n${JSON.stringify(values, null, 2)}`
+      }))
+    ).subscribe()
+  }
 }
